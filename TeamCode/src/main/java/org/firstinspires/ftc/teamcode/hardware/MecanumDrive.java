@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.hardware;
 
 import androidx.annotation.NonNull;
 
@@ -32,7 +32,6 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -42,6 +41,8 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Drawing;
+import org.firstinspires.ftc.teamcode.Localizer;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
@@ -245,8 +246,8 @@ public final class MecanumDrive {
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
 
-    // Function drive using inputs from joysticks
-    public void driveWithJoysticks (double forward, double strafe, double turn){
+    // Function to drive with robot centric drive
+    public void robotCentricDrive (double forward, double strafe, double turn){
 
         leftFront.setPower(forward - strafe - turn);
         leftBack.setPower(forward + strafe - turn);

@@ -4,7 +4,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.hardware.MecanumDrive;
 
 @TeleOp (name = "HestiaTeleOp", group = "TeleOp")
 public class HestiaTeleOp extends LinearOpMode {
@@ -46,7 +46,7 @@ public class HestiaTeleOp extends LinearOpMode {
 
             // Based off of which drive mode we are in, we use the appropriate function to drive
             if (isRobotCentric){
-                mecanumDrive.driveWithJoysticks(forward, strafe, turn);
+                mecanumDrive.robotCentricDrive(forward, strafe, turn);
                 telemetry.addLine("We are in robot centric mode");
             } else {
                 // The final parameter here is used as a button to determine whether the IMU needs to be reset or not
