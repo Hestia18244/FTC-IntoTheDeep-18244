@@ -28,14 +28,13 @@ public class HestiaTeleOp extends LinearOpMode {
         mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         waitForStart();
-
         // Loop this
         while (opModeIsActive()){
 
             // Sets our variables from earlier to their respective joysticks
             forward = gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x;
-            turn = gamepad1.right_stick_x;
+            strafe = gamepad1.right_stick_x;
+            turn = gamepad1.left_stick_x;
 
             // Helps to toggle whether or not the robot is in robot centric or field centric mode
             if (gamepad1.ps && !isRobotCentric){
@@ -53,6 +52,10 @@ public class HestiaTeleOp extends LinearOpMode {
                 mecanumDrive.cartesianDrive(forward, strafe, turn, gamepad1.dpad_up);
                 telemetry.addLine("We are in field centric mode");
             }
+
+            mecanumDrive.otherMechanisms(gamepad2.left_stick_y, gamepad2.right_stick_y,
+                    gamepad2.right_bumper, gamepad2.left_bumper);
+
             telemetry.update();
         }
     }
