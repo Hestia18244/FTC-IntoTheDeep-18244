@@ -44,6 +44,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Drawing;
 import org.firstinspires.ftc.teamcode.Localizer;
+import org.firstinspires.ftc.teamcode.TwoDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.messages.MecanumLocalizerInputsMessage;
@@ -61,9 +62,9 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.BACKWARD;
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.UP;
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
         public double inPerTick = 1;
@@ -110,8 +111,8 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
-    public final DcMotorEx towerMotor, sliderMotor;
-    public final Servo claw;
+    public final DcMotorEx rightSlider, leftSlider, linearActuator;
+//    public final Servo claw;
 
     public final VoltageSensor voltageSensor;
 
@@ -227,18 +228,21 @@ public final class MecanumDrive {
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
 
-        sliderMotor = hardwareMap.get(DcMotorEx.class, "sliderMotor");
-        towerMotor = hardwareMap.get(DcMotorEx.class, "towerMotor");
+        rightSlider = hardwareMap.get(DcMotorEx.class, "rightSlider");
+        leftSlider = hardwareMap.get(DcMotorEx.class, "leftSlider");
+        linearActuator = hardwareMap.get(DcMotorEx.class, "linearActuator");
 
-        claw = hardwareMap.get(Servo.class, "claw");
+//        claw = hardwareMap.get(Servo.class, "claw");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        sliderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        towerMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightSlider.setDirection(DcMotorSimple.Direction.REVERSE);
+        linearActuator.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: reverse motor directions if needed
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -252,7 +256,7 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // TODO: Change this to TwoWheelLocalizer when dead wheels are added
-        localizer = new DriveLocalizer();
+        localizer = new TwoDeadWheelLocalizer(hardwareMap, lazyImu.get(), PARAMS.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -296,15 +300,26 @@ public final class MecanumDrive {
 
     }
 
-    public void otherMechanisms (double slider, double tower, boolean right, boolean left){
-        towerMotor.setPower(.75*tower-.05);
-        sliderMotor.setPower(.75*slider);
+    public void otherMechanisms (double slider, double actuator, double right, double left){
+        rightSlider.setPower(slider);
+        leftSlider.setPower(slider);
 
-        if (right){
-            claw.setPosition(1);
-        } else if (left){
-            claw.setPosition(0.72);
-        }
+        linearActuator.setPower(actuator);
+        // TODO: ALE PLEASE LOOK HERE
+        //if (right){
+            //claw.setPosition(1);
+        //} else if (left){
+            //TODO: CHANGE THIS VALUE AS NEEDED
+            //claw.setPosition(0.72);
+        //}
+
+//        if (right > .25){
+//            claw.setPosition(.40);
+//        } else if (left>.25){
+//            claw.setPosition(.60);
+//        } else {
+//            claw.setPosition(.5);
+//        }
 
     }
 
