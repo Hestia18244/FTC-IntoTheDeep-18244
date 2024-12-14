@@ -53,8 +53,12 @@ public class HestiaTeleOp extends LinearOpMode {
                 telemetry.addLine("We are in field centric mode");
             }
 
-            mecanumDrive.otherMechanisms(.5*gamepad2.left_stick_y, gamepad2.right_stick_y,
-                    gamepad2.right_trigger, gamepad2.left_trigger);
+            mecanumDrive.otherMechanisms(gamepad2.left_stick_y,
+                    gamepad2.right_trigger,
+                    gamepad2.left_trigger,
+                    gamepad2.right_stick_y,
+                    gamepad2.right_bumper,
+                    gamepad2.left_bumper);
 
             telemetry.update();
         }

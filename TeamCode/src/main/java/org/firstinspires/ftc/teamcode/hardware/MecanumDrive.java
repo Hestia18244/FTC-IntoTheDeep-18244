@@ -32,6 +32,7 @@ import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
 import com.acmerobotics.roadrunner.ftc.RawEncoder;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -111,8 +112,8 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
-    public final DcMotorEx rightSlider, leftSlider, linearActuator;
-//    public final Servo claw;
+    public final DcMotorEx rightSlider, leftSlider, linearActuator, arm;
+    public final Servo claw;
 
     public final VoltageSensor voltageSensor;
 
@@ -231,8 +232,9 @@ public final class MecanumDrive {
         rightSlider = hardwareMap.get(DcMotorEx.class, "rightSlider");
         leftSlider = hardwareMap.get(DcMotorEx.class, "leftSlider");
         linearActuator = hardwareMap.get(DcMotorEx.class, "linearActuator");
+        arm = hardwareMap.get(DcMotorEx.class, "arm");
 
-//        claw = hardwareMap.get(Servo.class, "claw");
+        claw = hardwareMap.get(Servo.class, "claw");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -270,7 +272,31 @@ public final class MecanumDrive {
         rightBack.setPower(forward - strafe + turn);
 
     }
+    public void cartesianAuton(double forward, double strafe, double turn){
+        // Initializes our imu object so we can use it
+        final IMU imu = lazyImu.get();
 
+        // Get the heading of the bot in radians
+        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
+        // Rotate the movement direction counter to the bot's rotation
+        double rotX = strafe * Math.cos(botHeading) - forward * Math.sin(botHeading);
+        double rotY = strafe * Math.sin(botHeading) + forward * Math.cos(botHeading);
+
+        rotX = rotX * 1.1;  // Counteract imperfect strafing
+
+        // Denominator is the largest motor power (absolute value) or 1
+        // This ensures all the powers maintain the same ratio,
+        // but only if at least one is out of the range [-1, 1]
+        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
+        leftFront.setPower((rotY - rotX - turn) / denominator);
+        leftBack.setPower((rotY + rotX - turn) / denominator);
+        rightFront.setPower((rotY + rotX + turn) / denominator);
+        rightBack.setPower((rotY - rotX + turn) / denominator);
+
+
+
+    }
     public void cartesianDrive(double forward, double strafe, double turn, boolean resetIMU){
         // Initializes our imu object so we can use it
         final IMU imu = lazyImu.get();
@@ -300,11 +326,12 @@ public final class MecanumDrive {
 
     }
 
-    public void otherMechanisms (double slider, double actuator, double right, double left){
+    public void otherMechanisms (double slider, double actuatorForward, double actuatorBackward, double armPower, boolean right, boolean left){
         rightSlider.setPower(slider);
         leftSlider.setPower(slider);
 
-        linearActuator.setPower(actuator);
+        linearActuator.setPower(actuatorForward-actuatorBackward);
+        arm.setPower(armPower);
         // TODO: ALE PLEASE LOOK HERE
         //if (right){
             //claw.setPosition(1);
@@ -313,13 +340,13 @@ public final class MecanumDrive {
             //claw.setPosition(0.72);
         //}
 
-//        if (right > .25){
-//            claw.setPosition(.40);
-//        } else if (left>.25){
-//            claw.setPosition(.60);
-//        } else {
-//            claw.setPosition(.5);
-//        }
+        if (right){
+            claw.setPosition(.40);
+        } else if (left){
+            claw.setPosition(.60);
+        } else {
+            claw.setPosition(.5);
+        }
 
     }
 
