@@ -68,14 +68,14 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
         // drive model parameters
-        public double inPerTick = 1;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double inPerTick = 0.002899391128;
+        public double lateralInPerTick = 0.00206953549195401;
+        public double trackWidthTicks = 4814.578602522312;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kV = 0.0005767413151989905;
+        public double kS = 0.9360959270184361;
+        public double kA = 0.0001;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -87,9 +87,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 7.5;
+        public double lateralGain = 4.0;
+        public double headingGain = 7.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -247,8 +247,8 @@ public final class MecanumDrive {
         linearActuator.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: reverse motor directions if needed
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -281,9 +281,8 @@ public final class MecanumDrive {
 
         // Rotate the movement direction counter to the bot's rotation
         double rotX = strafe * Math.cos(botHeading) - forward * Math.sin(botHeading);
-        double rotY = strafe * Math.sin(botHeading) + forward * Math.cos(botHeading);
+        double rotY = (strafe * Math.sin(botHeading) + forward * Math.cos(botHeading));
 
-        rotX = rotX * 1.1;  // Counteract imperfect strafing
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
@@ -308,7 +307,7 @@ public final class MecanumDrive {
         double rotX = strafe * Math.cos(botHeading) - forward * Math.sin(botHeading);
         double rotY = strafe * Math.sin(botHeading) + forward * Math.cos(botHeading);
 
-        rotX = rotX * 1.1;  // Counteract imperfect strafing
+//        rotX = rotX * 1.1;  // Counteract imperfect strafing
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio,
@@ -326,12 +325,12 @@ public final class MecanumDrive {
 
     }
 
-    public void otherMechanisms (double slider, double actuatorForward, double actuatorBackward, double armPower, boolean right, boolean left){
+    public void otherMechanisms (double slider, double actuatorForward, double armPower, double right, double left){
         rightSlider.setPower(slider);
         leftSlider.setPower(slider);
 
-        linearActuator.setPower(actuatorForward-actuatorBackward);
-        arm.setPower(armPower);
+        linearActuator.setPower(actuatorForward);
+        arm.setPower(armPower-.05);
         // TODO: ALE PLEASE LOOK HERE
         //if (right){
             //claw.setPosition(1);
@@ -340,9 +339,9 @@ public final class MecanumDrive {
             //claw.setPosition(0.72);
         //}
 
-        if (right){
+        if (right> .25){
             claw.setPosition(.40);
-        } else if (left){
+        } else if (left > .25){
             claw.setPosition(.60);
         } else {
             claw.setPosition(.5);

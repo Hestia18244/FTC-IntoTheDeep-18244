@@ -32,9 +32,9 @@ public class HestiaTeleOp extends LinearOpMode {
         while (opModeIsActive()){
 
             // Sets our variables from earlier to their respective joysticks
-            forward = gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x;
-            turn = .5*gamepad1.right_stick_x;
+            forward = -gamepad1.left_stick_y;
+            strafe = -gamepad1.left_stick_x;
+            turn = -.75*gamepad1.right_stick_x;
 
             // Helps to toggle whether or not the robot is in robot centric or field centric mode
             if (gamepad1.ps && !isRobotCentric){
@@ -53,12 +53,13 @@ public class HestiaTeleOp extends LinearOpMode {
                 telemetry.addLine("We are in field centric mode");
             }
 
-            mecanumDrive.otherMechanisms(gamepad2.left_stick_y,
-                    gamepad2.right_trigger,
-                    gamepad2.left_trigger,
+            mecanumDrive.otherMechanisms(0.75*(gamepad1.right_trigger-gamepad1.left_trigger),
                     gamepad2.right_stick_y,
-                    gamepad2.right_bumper,
-                    gamepad2.left_bumper);
+                    gamepad2.left_stick_y,
+                    gamepad2.right_trigger,
+                    gamepad2.left_trigger);
+
+            telemetry.addLine("Value: " + gamepad2.right_trigger);
 
             telemetry.update();
         }

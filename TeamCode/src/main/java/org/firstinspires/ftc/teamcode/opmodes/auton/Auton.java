@@ -63,7 +63,7 @@ public class Auton extends LinearOpMode {
         sleep(1500);
 
         //Raise slider to touch the ascent zone
-        mecanumDrive.otherMechanisms(0.1, 0, 0, 0, false, false);
+//        mecanumDrive.otherMechanisms(0.1, 0, 0, 0, false, false);
 
 
     }
