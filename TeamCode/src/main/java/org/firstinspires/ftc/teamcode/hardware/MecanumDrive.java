@@ -112,8 +112,6 @@ public final class MecanumDrive {
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
     public final DcMotorEx leftFront, leftBack, rightBack, rightFront;
-    public final DcMotorEx rightSlider, leftSlider, linearActuator, arm;
-    public final Servo claw;
 
     public final VoltageSensor voltageSensor;
 
@@ -229,22 +227,10 @@ public final class MecanumDrive {
         rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
 
-        rightSlider = hardwareMap.get(DcMotorEx.class, "rightSlider");
-        leftSlider = hardwareMap.get(DcMotorEx.class, "leftSlider");
-        linearActuator = hardwareMap.get(DcMotorEx.class, "linearActuator");
-        arm = hardwareMap.get(DcMotorEx.class, "arm");
-
-        claw = hardwareMap.get(Servo.class, "claw");
-
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        rightSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftSlider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightSlider.setDirection(DcMotorSimple.Direction.REVERSE);
-        linearActuator.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // TODO: reverse motor directions if needed
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -272,30 +258,7 @@ public final class MecanumDrive {
         rightBack.setPower(forward - strafe + turn);
 
     }
-    public void cartesianAuton(double forward, double strafe, double turn){
-        // Initializes our imu object so we can use it
-        final IMU imu = lazyImu.get();
 
-        // Get the heading of the bot in radians
-        double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
-        // Rotate the movement direction counter to the bot's rotation
-        double rotX = strafe * Math.cos(botHeading) - forward * Math.sin(botHeading);
-        double rotY = (strafe * Math.sin(botHeading) + forward * Math.cos(botHeading));
-
-
-        // Denominator is the largest motor power (absolute value) or 1
-        // This ensures all the powers maintain the same ratio,
-        // but only if at least one is out of the range [-1, 1]
-        double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(turn), 1);
-        leftFront.setPower((rotY - rotX - turn) / denominator);
-        leftBack.setPower((rotY + rotX - turn) / denominator);
-        rightFront.setPower((rotY + rotX + turn) / denominator);
-        rightBack.setPower((rotY - rotX + turn) / denominator);
-
-
-
-    }
     public void cartesianDrive(double forward, double strafe, double turn, boolean resetIMU){
         // Initializes our imu object so we can use it
         final IMU imu = lazyImu.get();
@@ -321,30 +284,6 @@ public final class MecanumDrive {
         // Resets the IMU if the button is pressed
         if (resetIMU){
             imu.resetYaw();
-        }
-
-    }
-
-    public void otherMechanisms (double slider, double actuatorForward, double armPower, double right, double left){
-        rightSlider.setPower(slider);
-        leftSlider.setPower(slider);
-
-        linearActuator.setPower(actuatorForward);
-        arm.setPower(armPower-.05);
-        // TODO: ALE PLEASE LOOK HERE
-        //if (right){
-            //claw.setPosition(1);
-        //} else if (left){
-            //TODO: CHANGE THIS VALUE AS NEEDED
-            //claw.setPosition(0.72);
-        //}
-
-        if (right> .25){
-            claw.setPosition(.40);
-        } else if (left > .25){
-            claw.setPosition(.60);
-        } else {
-            claw.setPosition(.5);
         }
 
     }
